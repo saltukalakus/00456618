@@ -31,9 +31,14 @@ class HomeViewController: UIViewController {
     @IBAction func showLoginController(_ sender: UIButton) {
         guard let clientInfo = plistValues(bundle: Bundle.main) else { return }
         
+        let params: [String: String] = [
+            "prompt": "login"
+        ]
+
         if(!isAuthenticated){
             Auth0
                 .webAuth()
+                .parameters(params)
                 .scope("openid profile")
                 .audience("https://" + clientInfo.domain + "/userinfo")
                 .start {

@@ -31,13 +31,20 @@ class HomeViewController: UIViewController {
     @IBAction func showLoginController(_ sender: UIButton) {
         guard let clientInfo = plistValues(bundle: Bundle.main) else { return }
         
-        if(!isAuthenticated){
-            Auth0
-                .webAuth()
-                .scope("openid profile")
-                .audience("https://" + clientInfo.domain + "/userinfo")
-                .start {
-                    switch $0 {
+        let params: [String: String] = [
+            "prompt": "login"
+        ]
+
+        if #available(iOS 11, *) {
+            if(!isAuthenticated){
+                Auth0
+                    .webAuth()
+                    .parameters(params)
+                    .useLegacyAuthentication()
+                    .scope("openid profile")
+                    .audience("https://" + clientInfo.domain + "/userinfo")
+                    .start {
+                        switch $0 {
                         case .failure(let error):
                             print("Error: \(error)")
                         case .success(let credentials):
@@ -48,14 +55,14 @@ class HomeViewController: UIViewController {
                                 self.isAuthenticated = true
                                 sender.setTitle("Log out", for: .normal)
                             }
-                    }
+                        }
                 }
-        }
-        else{
-            Auth0
-                .webAuth()
-                .clearSession(federated:false){
-                    switch $0{
+            }
+            else{
+                Auth0
+                    .webAuth()
+                    .clearSession(federated:false){
+                        switch $0{
                         case true:
                             DispatchQueue.main.async {
                                 sender.setTitle("Log in", for: .normal)
@@ -64,9 +71,12 @@ class HomeViewController: UIViewController {
                         case false:
                             DispatchQueue.main.async {
                                 self.showSuccessAlert("An error occurred")
+                            }
                         }
-                    }
                 }
+            }
+        } else {
+            // Fallback on earlier versions
         }
     }
 
