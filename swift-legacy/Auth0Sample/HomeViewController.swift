@@ -35,12 +35,12 @@ class HomeViewController: UIViewController {
             "prompt": "login"
         ]
 
-        if #available(iOS 11, *) {
+        if #available(iOS 13, *) {
             if(!isAuthenticated){
                 Auth0
                     .webAuth()
                     .parameters(params)
-                    .useLegacyAuthentication()
+                    .useEphemeralSession()
                     .scope("openid profile")
                     .audience("https://" + clientInfo.domain + "/userinfo")
                     .start {
